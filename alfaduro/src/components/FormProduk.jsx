@@ -1,4 +1,3 @@
-// FormProduk.jsx
 import React, { useState, useEffect } from "react";
 import {
   Modal,
@@ -28,11 +27,12 @@ const FormProduk = ({ open, onClose, onSubmit, editData, setAlertMessage }) => {
     harga: "",
     stok: "",
     deskripsi: "",
+    foto: null, // Tambahkan state untuk file foto
   });
 
   useEffect(() => {
     if (editData) {
-      setForm(editData);
+      setForm({ ...editData, foto: null }); // Reset file foto
     } else {
       setForm({
         nama: "",
@@ -40,15 +40,24 @@ const FormProduk = ({ open, onClose, onSubmit, editData, setAlertMessage }) => {
         harga: "",
         stok: "",
         deskripsi: "",
+        foto: null,
       });
     }
   }, [editData]);
 
+  const handleFileChange = (e) => {
+    setForm({ ...form, foto: e.target.files[0] });
+  };
+
   const handleSubmit = async () => {
-    await onSubmit(form, editData?.id);
-    if (setAlertMessage) {
-      setAlertMessage(editData ? "Produk berhasil diperbarui!" : "Produk berhasil ditambahkan!");
+    const formData = new FormData();
+    for (const key in form) {
+      if (form[key] !== null) {
+        formData.append(key, form[key]);
+      }
     }
+
+    await onSubmit(formData, editData?.id);
     onClose();
   };
 
@@ -93,6 +102,12 @@ const FormProduk = ({ open, onClose, onSubmit, editData, setAlertMessage }) => {
             onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
             fullWidth
           />
+          <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setForm({ ...form, foto: e.target.files[0] })}
+/>
+
           <Button variant="contained" onClick={handleSubmit}>
             {editData ? "Update" : "Simpan"}
           </Button>

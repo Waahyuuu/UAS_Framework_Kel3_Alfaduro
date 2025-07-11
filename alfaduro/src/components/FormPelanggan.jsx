@@ -40,46 +40,47 @@ const FormPelanggan = ({ open, onClose, onSubmit, editData, setAlertMessage }) =
   }, [editData]);
 
   // Fungsi yang dijalankan saat tombol "Simpan" atau "Update" diklik
-const handleSubmit = async () => {
-  try {
-    // Regex untuk format email umum
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const handleSubmit = async () => {
+    try {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const hpRegex = /^[0-9]+$/;
 
-    // Validasi format email
-    if (!emailRegex.test(form.email)) {
-      alert("Format email tidak valid. Contoh: nama@email.com");
-      return;
+      if (!form.nama.trim() || !form.email.trim() || !form.no_hp.trim()) {
+        alert("Semua field wajib diisi.");
+        return;
+      }
+
+      if (!emailRegex.test(form.email)) {
+        alert("Format email tidak valid. Contoh: nama@email.com");
+        return;
+      }
+
+      if (!hpRegex.test(form.no_hp)) {
+        alert("Nomor HP hanya boleh berisi angka.");
+        return;
+      }
+
+      await onSubmit(form, editData?.id);
+
+      if (setAlertMessage) {
+        setAlertMessage(editData ? "Data pelanggan diperbarui!" : "Data pelanggan ditambahkan!");
+      }
+
+      onClose();
+    } catch (error) {
+      alert("Gagal menyimpan data pelanggan.");
     }
-
-    // Panggil fungsi onSubmit dari props dan kirim data form
-    await onSubmit(form, editData?.id);
-
-    // Tampilkan pesan notifikasi berhasil jika fungsi tersedia
-    if (setAlertMessage) {
-      setAlertMessage(editData ? "Data pelanggan diperbarui!" : "Data pelanggan ditambahkan!");
-    }
-
-    // Tutup modal setelah submit
-    onClose();
-  } catch (error) {
-    alert("Gagal menyimpan data pelanggan.");
-  }
-};
-
-
+  };
 
   // Tampilan UI Form di dalam modal
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={styleModal}>
-        {/* Judul modal: menyesuaikan mode edit/tambah */}
         <Typography variant="h6" mb={2}>
           {editData ? 'Edit Pelanggan' : 'Tambah Pelanggan'}
         </Typography>
 
-        {/* Stack form input dengan spasi antar elemen */}
         <Stack spacing={2}>
-          {/* Input Nama */}
           <TextField
             label="Nama"
             value={form.nama}
@@ -87,7 +88,6 @@ const handleSubmit = async () => {
             fullWidth
           />
 
-          {/* Input Email */}
           <TextField
             label="Email"
             value={form.email}
@@ -95,15 +95,14 @@ const handleSubmit = async () => {
             fullWidth
           />
 
-          {/* Input Nomor HP */}
           <TextField
             label="No HP"
             value={form.no_hp}
             onChange={(e) => setForm({ ...form, no_hp: e.target.value })}
+            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
             fullWidth
           />
 
-          {/* Tombol Simpan/Update */}
           <Button variant="contained" onClick={handleSubmit}>
             {editData ? 'Update' : 'Simpan'}
           </Button>
@@ -113,5 +112,4 @@ const handleSubmit = async () => {
   );
 };
 
-// Ekspor komponen supaya bisa digunakan di file lain
 export default FormPelanggan;

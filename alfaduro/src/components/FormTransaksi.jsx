@@ -145,13 +145,28 @@ const FormTransaksi = ({
 
           {/* Input tanggal transaksi */}
           <TextField
-            type="date"
-            label="Tanggal"
-            InputLabelProps={{ shrink: true }}
-            value={form.tanggal}
-            onChange={(e) => setForm({ ...form, tanggal: e.target.value })}
-            fullWidth
-          />
+  type="date"
+  label="Tanggal"
+  InputLabelProps={{ shrink: true }}
+  value={form.tanggal}
+  onChange={(e) => {
+    const selectedDate = new Date(e.target.value);
+    const today = new Date();
+
+    // Buat jam hari ini jadi 00:00:00 agar perbandingan hanya berdasar tanggal
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate > today) {
+      showSnackbar("Tanggal tidak boleh di masa depan.", "warning");
+      return;
+    }
+
+    setForm({ ...form, tanggal: e.target.value });
+  }}
+  fullWidth
+/>
+
 
           {/* Label daftar produk */}
           <Typography fontWeight="bold">Daftar Produk</Typography>

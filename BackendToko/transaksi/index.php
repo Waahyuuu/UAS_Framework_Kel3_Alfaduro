@@ -124,4 +124,19 @@ switch ($method) {
     http_response_code(405);
     echo json_encode(["message" => "Metode tidak diizinkan"]);
 }
+
+if ($method === 'POST' || $method === 'PUT') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $tanggal = $data['tanggal'] ?? '';
+
+    if ($tanggal && strtotime($tanggal) > strtotime(date("Y-m-d"))) {
+        http_response_code(400);
+        echo json_encode(["error" => "Tanggal tidak boleh di masa depan."]);
+        exit;
+    }
+
+    // lanjutkan menyimpan transaksi...
+}
+
+
 ?>

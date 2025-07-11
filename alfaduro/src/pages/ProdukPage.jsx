@@ -38,21 +38,21 @@ const ProdukPage = () => {
     fetchData();
   }, []);
 
-  const handleSubmit = async (form, id = null) => {
-    const payload = {
-      ...form,
-      harga: parseFloat(form.harga),
-      stok: parseInt(form.stok),
-    };
-
+  const handleSubmit = async (formData, id = null) => {
     try {
       if (id) {
-        await axios.put(API, { ...payload, id });
-        setAlertMessage("Produk berhasil diperbarui!");
-      } else {
-        await axios.post(API, payload);
-        setAlertMessage("Produk berhasil ditambahkan!");
+        formData.append("id", id); // tambahkan ID untuk update
       }
+
+      await axios.post(API, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setAlertMessage(
+        id ? "Produk berhasil diperbarui!" : "Produk berhasil ditambahkan!"
+      );
       fetchData();
     } catch (err) {
       console.error("Gagal kirim data:", err);
@@ -74,10 +74,11 @@ const ProdukPage = () => {
     }
   };
 
-  const filteredProduk = produkList.filter((item) =>
-    item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.kategori.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.deskripsi.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProduk = produkList.filter(
+    (item) =>
+      item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.kategori.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.deskripsi.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -100,7 +101,7 @@ const ProdukPage = () => {
           <Grid item xs={12} sm={6} md={4} key={item.id}>
             <Card
               sx={{
-                height: "250px",
+                height: "330px",
                 width: "362px",
                 display: "flex",
                 flexDirection: "column",
@@ -108,6 +109,20 @@ const ProdukPage = () => {
                 boxShadow: 2,
               }}
             >
+              {item.foto && (
+                <img
+                  src={`http://localhost/backendtoko/uploads/${item.foto}`}
+                  alt={item.nama}
+                  style={{
+                    width: "100%",
+                    height: "120px",
+                    objectFit: "cover",
+                    borderTopLeftRadius: "4px",
+                    borderTopRightRadius: "4px",
+                  }}
+                />
+              )}
+
               <CardContent sx={{ flexGrow: 1, overflow: "hidden" }}>
                 <Typography variant="h6" noWrap>
                   {item.nama} - {item.kategori}
@@ -122,7 +137,7 @@ const ProdukPage = () => {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     display: "-webkit-box",
-                    WebkitLineClamp: 2,
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: "vertical",
                   }}
                 >
